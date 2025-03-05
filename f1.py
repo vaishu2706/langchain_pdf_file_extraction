@@ -52,17 +52,27 @@ def create_vector_store(document_splits, embeddings):
     except Exception as e:
         print(f"Error creating vector store: {e}")
         return None
+
 # Step 5: Perform semantic search
-def semantic_search(vectorstore, query):
+def semantic_search(vectorstore, query, top_n=3):
     try:
-        query_embedding = vectorstore._embedding_function.embed_query(query)  
-        results = vectorstore.similarity_search_by_vector(query_embedding)  
+        query_embedding = vectorstore._embedding_function.embed_query(query)
+        results = vectorstore.similarity_search_by_vector(query_embedding, k=top_n)
         
-        print("Top Search Results:")
-        for i, res in enumerate(results):
-            print(f"{i+1}. {res.page_content[:]}...")  
+        seen_texts = set()
+        filtered_results = []
         
-        return results
+        for res in results:
+            text = res.page_content.strip()
+            if text not in seen_texts:  # Avoid exact duplicates
+                seen_texts.add(text)
+                filtered_results.append(res)
+
+        print("Filtered Search Results:")
+        for i, res in enumerate(filtered_results):
+            print(f"{i+1}. {res.page_content[:200]}...")
+
+        return filtered_results
     except Exception as e:
         print(f"Error performing semantic search: {e}")
         return []
@@ -77,7 +87,7 @@ def main():
         print("No documents loaded. Exiting.")
         return
     
-    document_splits = split_documents(documents)
+    document_splits = split_documents(documents,chunk_size=2000,chunk_overlap=0)
     
     embeddings = create_embeddings()
     if not embeddings:
@@ -89,8 +99,9 @@ def main():
         print("Error in creating vector store. Exiting.")
         return
     
-    query = "describe stream processing fundamentals"
+    query = "what is kafka?"
     results = semantic_search(vectorstore, query)
 
 if __name__ == "__main__":
     main()
+
