@@ -52,17 +52,15 @@ def create_vector_store(document_splits, embeddings):
     except Exception as e:
         print(f"Error creating vector store: {e}")
         return None
-
-# Step 5: Perform semantic search
 # Step 5: Perform semantic search
 def semantic_search(vectorstore, query):
     try:
-        query_embedding = vectorstore._embedding_function.embed_query(query)  # ✅ Correct way to get embeddings
-        results = vectorstore.similarity_search_by_vector(query_embedding)  # ✅ Use the correct function
+        query_embedding = vectorstore._embedding_function.embed_query(query)  
+        results = vectorstore.similarity_search_by_vector(query_embedding)  
         
         print("Top Search Results:")
         for i, res in enumerate(results):
-            print(f"{i+1}. {res.page_content[:]}...")  # ✅ Show only relevant part
+            print(f"{i+1}. {res.page_content[:]}...")  
         
         return results
     except Exception as e:
