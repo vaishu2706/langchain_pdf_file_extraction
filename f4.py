@@ -9,7 +9,6 @@ import uuid
 import logging
 import re
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -20,12 +19,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize Flask
 app = Flask(__name__)
 
 documents_db = {}
-
-# Include the PDF file path
 PDF_FILE_PATH = "C:\\12n8\\BDA-Unit-6.pdf"
 
 def load_pdf(file_path):
@@ -87,7 +83,6 @@ def extract_text(document_id):
 
 @app.route("/documents/<document_id>/extract-text/search", methods=["GET"])
 def search_text(document_id):
-    """Search for a specific text inside the document and return the content."""
     keyword = request.args.get("keyword")
     
     if not keyword:
@@ -117,7 +112,6 @@ def search_text(document_id):
 
 @app.route("/documents/<document_id>/extract-text/update", methods=["PUT"])
 def update_text(document_id):
-    """Update specific content in the extracted text."""
     data = request.get_json()
     old_text = data.get("old_text")
     new_text = data.get("new_text")
@@ -146,7 +140,6 @@ def update_text(document_id):
 
 @app.route("/documents/<document_id>/extract-text/delete", methods=["DELETE"])
 def delete_text(document_id):
-    """Delete a specific text from the extracted content."""
     data = request.get_json()
     text_to_delete = data.get("text_to_delete")
 
@@ -170,11 +163,6 @@ def delete_text(document_id):
     except Exception as e:
         return jsonify({"error": f"Failed to delete text: {str(e)}"}), 500
 
-
-
-
-
-# Load the included PDF at startup
 if os.path.exists(PDF_FILE_PATH):
     logger.info(f"Loading included PDF: {PDF_FILE_PATH}")
     load_pdf(PDF_FILE_PATH)
