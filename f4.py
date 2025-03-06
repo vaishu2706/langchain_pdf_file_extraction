@@ -107,9 +107,6 @@ def search_text(document_id):
     except Exception as e:
         return jsonify({"error": f"Failed to search text: {str(e)}"}), 500
     
-
-
-
 @app.route("/documents/<document_id>/extract-text/update", methods=["PUT"])
 def update_text(document_id):
     data = request.get_json()
@@ -126,7 +123,9 @@ def update_text(document_id):
     try:
         loader = PyPDFLoader(file_path)
         documents = loader.load()
-        extracted_text = "\n".join([doc.page_content for doc in documents])
+
+        extracted_text = " ".join([doc.page_content.replace("\uf0d8", "-").replace("\n", " ").strip() for doc in documents])
+        extracted_text = re.sub(r'\s+', ' ', extracted_text).strip()
 
         if old_text not in extracted_text:
             return jsonify({"error": "Text not found"}), 404
@@ -136,7 +135,6 @@ def update_text(document_id):
         return jsonify({"document_id": document_id, "updated_text": updated_text})
     except Exception as e:
         return jsonify({"error": f"Failed to update text: {str(e)}"}), 500
-
 
 @app.route("/documents/<document_id>/extract-text/delete", methods=["DELETE"])
 def delete_text(document_id):
